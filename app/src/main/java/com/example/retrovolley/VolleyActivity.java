@@ -3,6 +3,7 @@ package com.example.retrovolley;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,6 +27,16 @@ import com.google.gson.Gson;
 
 import org.json.JSONObject;
 
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 public class VolleyActivity extends AppCompatActivity {
     private Button btnCloseVolley;
     private Button btnRefreshVolley;
@@ -39,6 +50,8 @@ public class VolleyActivity extends AppCompatActivity {
         btnCloseVolley = findViewById(R.id.btnCloseVolley);
         btnRefreshVolley = findViewById(R.id.btnRefreshVolley);
         lvUserVolley = findViewById(R.id.lv_userVolley);
+
+        handleSSLHandshake();
 
         setTitle(R.string.volley);
         getUserFromAPI();
@@ -72,7 +85,7 @@ public class VolleyActivity extends AppCompatActivity {
 
     private void getUserFromAPI() {
         Gson gson = new Gson();
-        String URL = "https://192.168.1.9/volley/User_Registration.php";
+        String URL = "https://192.168.1.102/volley/User_Registration.php";
         ProgressDialog proDialog = new ProgressDialog(this);
         proDialog.setTitle(getString(R.string.volley));
         proDialog.setMessage(getString(R.string.tunggu));
@@ -108,5 +121,38 @@ public class VolleyActivity extends AppCompatActivity {
 
         RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
         requestQueue.add(request);
+    }
+
+    /**
+     * Enables https connections
+     */
+    @SuppressLint("TrulyRandom")
+    public static void handleSSLHandshake() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+
+                @Override
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+            }};
+
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+            });
+        } catch (Exception ignored) {
+        }
     }
 }

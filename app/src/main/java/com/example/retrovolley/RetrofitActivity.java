@@ -24,7 +24,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitActivity extends AppCompatActivity {
-    private final String TAG = getClass().getSimpleName();
+    private final String TAG = "DEBUG_NETWORK";
     private ListView lvUser;
     private List<User> listUser = new ArrayList<>();
 
@@ -72,7 +72,7 @@ public class RetrofitActivity extends AppCompatActivity {
         proDialog.setMessage(getString(R.string.tunggu));
         proDialog.show();
 
-        Retrofit.Builder builder = new Retrofit.Builder().baseUrl("http://192.158.1.9/volley/")
+        Retrofit.Builder builder = new Retrofit.Builder().baseUrl("http://192.168.1.102/volley/")
                 .addConverterFactory(GsonConverterFactory.create());
 
         Retrofit retrofit = builder.build();
@@ -83,6 +83,7 @@ public class RetrofitActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<UserResponse> call, Response<UserResponse> response) {
                 proDialog.dismiss();
+                assert response.body() != null;
                 listUser = response.body().getUser_list();
                 UserAdapter userAdapter = new UserAdapter(getApplicationContext(), listUser);
                 lvUser.setAdapter(userAdapter);

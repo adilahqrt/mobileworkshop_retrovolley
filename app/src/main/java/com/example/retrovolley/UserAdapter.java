@@ -29,7 +29,7 @@ public class UserAdapter extends ArrayAdapter<User> {
 
         txtFullname.setText(user.getUser_fullname());
         txtEmail.setText(user.getUser_email());
-        txtID.setText(user.getId());
+        txtID.setText(String.valueOf(user.getId()));
 
         return convertView;
     }
